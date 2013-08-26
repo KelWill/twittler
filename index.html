@@ -3,25 +3,65 @@
   <head>
     <script src="jquery.js"></script>
     <script src="data_generator.js"></script>
+	<script src="moment.js"></script>
+	<link rel="stylesheet" type="text/css" href="style.css">
   </head>
   <body>
-    <script>
+    <div id = "header">Twittler</div>
+	<div id = "left"><div id='all'>All Users</div></div>
+    <div id= "main">
+    <script> 
+      $(document).ready(function(){    //next thing to do: add an input box and a tweet button to let default user tweet, then I think I'm going to try and rewrite this using parse
+        var $main = $('#main');
+		var $left = $('#left');
+        var index = 0;
+        var toShow = "";
+        $main.html('');
+        
+		setInterval(function(){  //check every second for new tweets from the server
+          while(index < streams.home.length){
+            var tweet = streams.home[index];
+			var timeStamp = moment(tweet.created_at).calendar();
+            var $tweet = $('<div class = "tweets"></div>');
+			$tweet.addClass(tweet.user);
+            $tweet.text('@' + tweet.user + ': ' + tweet.message + "Twitted at: "  + timeStamp);
+            if (toShow.length > 0 && toShow !== (tweet.user + "")){
+              console.log("hiding tweet");
+              console.log(tweet.user + "");
+              console.log(toShow);
+              $tweet.addClass('hide');
+            }
+            $tweet.prependTo($main);
+            index += 1;
+          }
+		}, 1000);
 
-      $(document).ready(function(){
-        var $body = $('body');
-        $body.html('');
-
-        var index = streams.home.length - 1;
-        while(index >= 0){
-          var tweet = streams.home[index];
-          var $tweet = $('<div></div>');
-          $tweet.text('@' + tweet.user + ': ' + tweet.message);
-          $tweet.appendTo($body);
-          index -= 1;
-        }
-
+		for (var i in streams.users) {  //create users as divs with button
+		  console.log(i);
+		  var $user = $('<div class ="user"></div>');
+		  $user.attr('id', i);
+		  $user.text(i);
+          $user.css({'text-align': 'center'});
+		  $user.prependTo($left);
+		}
+        var showAll = function() {   
+		  $('.tweets').removeClass('hide');
+          toShow = ""
+		};
+		
+        //event handlers;
+        $('#all').on('click', showAll);
+        
+        $('.user').on('click', function(){
+		  $('.tweets').addClass('hide');
+		  var toDisplay = "." + $(this).attr('id');
+		  $('#main').find(toDisplay).removeClass('hide');
+          toShow = ($(this).attr('id'));    
+          console.log(toShow);            
+		});
       });
-
+	  
     </script>
+	</div>
   </body>
 </html>
